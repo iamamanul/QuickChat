@@ -1,29 +1,79 @@
 /* Responsive styles for HomePage layout */
-@media (max-width: 1024px) {
+
+/* Large screens (1200px and up) */
+@media (min-width: 1200px) {
   .main-chat-grid {
     grid-template-columns: 1fr 2fr 1fr !important;
   }
 }
-@media (max-width: 900px) {
+
+/* Medium-large screens (1024px to 1199px) */
+@media (max-width: 1199px) and (min-width: 1024px) {
   .main-chat-grid {
-    grid-template-columns: 1fr 2fr !important;
+    grid-template-columns: 1fr 1.8fr 1fr !important;
   }
 }
-@media (max-width: 768px) {
+
+/* Medium screens (768px to 1023px) */
+@media (max-width: 1023px) and (min-width: 768px) {
+  .main-chat-grid {
+    grid-template-columns: 1fr 1.5fr !important;
+  }
+  .main-chat-container {
+    padding: 2% !important;
+  }
+}
+
+/* Small-medium screens (640px to 767px) */
+@media (max-width: 767px) and (min-width: 640px) {
+  .main-chat-grid {
+    grid-template-columns: 1fr 1.2fr !important;
+  }
+  .main-chat-container {
+    padding: 1% !important;
+  }
+}
+
+/* Mobile screens (below 640px) */
+@media (max-width: 639px) {
   .main-chat-grid {
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
+    height: 100vh !important;
   }
   .main-chat-container {
     padding: 0 !important;
+    height: 100vh !important;
   }
 }
-@media (max-width: 480px) {
+
+/* Extra small mobile screens (below 480px) */
+@media (max-width: 479px) {
   .main-chat-grid {
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
+    height: 100vh !important;
   }
   .main-chat-container {
     padding: 0 !important;
+    height: 100vh !important;
+  }
+}
+
+/* Landscape mobile orientation */
+@media (max-height: 500px) and (orientation: landscape) {
+  .main-chat-container {
+    padding: 0 !important;
+  }
+  .main-chat-grid {
+    border-radius: 0 !important;
+  }
+}
+
+/* Ensure proper viewport height on mobile */
+@media (max-width: 639px) {
+  .main-chat-container {
+    min-height: 100vh;
+    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
   }
 }
