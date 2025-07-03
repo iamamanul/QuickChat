@@ -1,0 +1,29 @@
+/* Responsive styles for HomePage layout */
+@media (max-width: 1024px) {
+  .main-chat-grid {
+    grid-template-columns: 1fr 2fr 1fr !important;
+  }
+}
+@media (max-width: 900px) {
+  .main-chat-grid {
+    grid-template-columns: 1fr 2fr !important;
+  }
+}
+@media (max-width: 768px) {
+  .main-chat-grid {
+    grid-template-columns: 1fr !important;
+    border-radius: 0 !important;
+  }
+  .main-chat-container {
+    padding: 0 !important;
+  }
+}
+@media (max-width: 480px) {
+  .main-chat-grid {
+    grid-template-columns: 1fr !important;
+    border-radius: 0 !important;
+  }
+  .main-chat-container {
+    padding: 0 !important;
+  }
+}
