@@ -82,22 +82,25 @@ const ChatContainer = () => {
       </div>
 
 {/* ------- bottom area ------- */}
-    <div className='absolute bottom-0 left-0 right-0 flex items-center gap-2 sm:gap-3 p-2 sm:p-3'>
-        <div className='flex-1 flex items-center bg-gray-100/12 px-2 sm:px-3 rounded-full'>
+    <div className='absolute bottom-0 left-0 right-0 flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-[#18162a]/90' style={{backdropFilter: 'blur(6px)'}}>
+        <div className='flex-1 flex items-center bg-[#23213a] px-3 py-2 sm:px-3 sm:py-3 rounded-full border border-violet-500 gap-2'>
             <input 
                 onChange={(e)=> setInput(e.target.value)} 
                 value={input} 
                 onKeyDown={(e)=> e.key === "Enter" ? handleSendMessage(e) : null} 
                 type="text" 
                 placeholder="Send a message" 
-                className='flex-1 text-sm p-2 sm:p-3 border-none rounded-lg outline-none text-white placeholder-gray-400'
+                className='flex-1 text-sm p-2 sm:p-3 border-none rounded-lg outline-none text-white placeholder-gray-400 bg-transparent min-w-0'
+                style={{minWidth:0}}
             />
             <input onChange={handleSendImage} type="file" id='image' accept='image/png, image/jpeg' hidden/>
-            <label htmlFor="image">
-                <img src={assets.gallery_icon} alt="" className="w-4 sm:w-5 mr-1 sm:mr-2 cursor-pointer"/>
+            <label htmlFor="image" className="flex items-center justify-center cursor-pointer">
+                <img src={assets.gallery_icon} alt="" className="w-6 h-6 sm:w-5 sm:h-5 mr-1 sm:mr-2"/>
             </label>
         </div>
-        <img onClick={handleSendMessage} src={assets.send_button} alt="" className="w-6 sm:w-7 cursor-pointer" />
+        <button onClick={handleSendMessage} className="flex items-center justify-center w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-700 shadow-md ml-2 border-none p-0">
+            <img src={assets.send_button} alt="Send" className="w-6 sm:w-7" />
+        </button>
     </div>
 
 
