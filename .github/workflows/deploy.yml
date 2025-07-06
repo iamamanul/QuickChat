@@ -1,0 +1,129 @@
+name: Deploy
+
+on:
+  push:
+    branches: [ "main" ]
+
+jobs:
+  # Job to build and push the Docker image to Docker Hub
+  build-and-push:
+    runs-on: ubuntu-latest
+    steps:
+    - uses: actions/checkout@v4
+    
+    - name: Build Frontend Docker Image
+      run: |
+        docker build ./client \
+          -f client/Dockerfile.client \
+          --build-arg VITE_BACKEND_URL=${{ secrets.VITE_BACKEND_URL }} \
+          -t iamamanul/quickchat-frontend:latest
+    
+    - name: Build Backend Docker Image
+      run: |
+        docker build ./server \
+          -f server/Dockerfile.server \
+          --build-arg MONGODB_URI=${{ secrets.MONGODB_URI }} \
+          --build-arg JWT_SECRET=${{ secrets.JWT_SECRET }} \
+          --build-arg CLOUDINARY_CLOUD_NAME=${{ secrets.CLOUDINARY_CLOUD_NAME }} \
+          --build-arg CLOUDINARY_API_KEY=${{ secrets.CLOUDINARY_API_KEY }} \
+          --build-arg CLOUDINARY_API_SECRET=${{ secrets.CLOUDINARY_API_SECRET }} \
+          -t iamamanul/quickchat-backend:latest
+    
+    - name: Log in to Docker Hub
+      run: echo "${{secrets.DOCKERHUB_PASSWORD}}" | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
+    
+    - name: Push Frontend Docker Image
+      run: docker push iamamanul/quickchat-frontend:latest
+    
+    - name: Push Backend Docker Image
+      run: docker push iamamanul/quickchat-backend:latest
+
+  # New job to deploy the Docker images to the EC2 instance
+  deploy-to-ec2:
+    runs-on: ubuntu-latest
+    needs: build-and-push
+    # Set to true if you want the overall workflow to pass even if deployment fails
+    continue-on-error: true
+    steps:
+    - name: Deploy to EC2 # Giving this step an ID to check its success
+      id: deploy_script
+      uses: appleboy/ssh-action@v1.0.3
+      with:
+        host: ${{ secrets.EC2_HOST }}
+        username: ${{ secrets.EC2_USERNAME }}
+        key: ${{ secrets.SSH_PRIVATE_KEY }}
+        script: |
+          # 1. Log in to Docker Hub on the EC2 instance
+          echo "${{secrets.DOCKERHUB_PASSWORD}}" | docker login -u ${{secrets.DOCKERHUB_USERNAME}} --password-stdin
+
+          # 2. Pull the latest Docker images
+          docker pull iamamanul/quickchat-frontend:latest
+          docker pull iamamanul/quickchat-backend:latest
+
+          # 3. Stop and remove the old containers if they're running or exist
+          echo "Attempting to stop existing QuickChat containers..."
+          docker stop quickchat-frontend || true
+          docker stop quickchat-backend || true
+          docker stop quickchat-mongodb || true
+
+          echo "Attempting to remove old QuickChat containers..."
+          docker rm quickchat-frontend || true
+          docker rm quickchat-backend || true
+          docker rm quickchat-mongodb || true
+
+          # 4. Create a custom network for the application
+          docker network create quickchat-network || true
+
+          # 5. Run MongoDB container
+          docker run -d \
+            --name quickchat-mongodb \
+            --network quickchat-network \
+            -p 27017:27017 \
+            -v mongo_data:/data/db \
+            mongo:latest
+
+          # 6. Run the backend Docker container with all necessary environment variables
+          docker run -d \
+            --name quickchat-backend \
+            --network quickchat-network \
+            -p 5000:5000 \
+            -e MONGODB_URI='${{ secrets.MONGODB_URI }}' \
+            -e JWT_SECRET='${{ secrets.JWT_SECRET }}' \
+            -e CLOUDINARY_CLOUD_NAME='${{ secrets.CLOUDINARY_CLOUD_NAME }}' \
+            -e CLOUDINARY_API_KEY='${{ secrets.CLOUDINARY_API_KEY }}' \
+            -e CLOUDINARY_API_SECRET='${{ secrets.CLOUDINARY_API_SECRET }}' \
+            -e NODE_ENV='production' \
+            iamamanul/quickchat-backend:latest
+
+          # 7. Run the frontend Docker container
+          docker run -d \
+            --name quickchat-frontend \
+            --network quickchat-network \
+            -p 5173:5173 \
+            -e VITE_BACKEND_URL='${{ secrets.VITE_BACKEND_URL }}' \
+            iamamanul/quickchat-frontend:latest
+
+          # 8. Wait for services to start
+          echo "Waiting for services to start..."
+          sleep 30
+
+          # 9. Check container status
+          echo "Container Status:"
+          docker ps
+
+          echo "Deployment script finished."
+
+    - name: Send Telegram Notification # This step uses the 'id' of the previous step
+      if: steps.deploy_script.outcome == 'success' # Only run if the 'Deploy to EC2' script step was successful
+      uses: appleboy/telegram-action@master # Using the Telegram action
+      with:
+        to: ${{ secrets.TELEGRAM_CHAT_ID }}
+        token: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+        message: |
+          🚀 QuickChat Deployment Successful!
+          Repository: ${{ github.repository }}
+          Branch: ${{ github.ref_name }}
+          Commit: ${{ github.sha }}
+          Frontend URL: http://${{ secrets.EC2_HOST }}:5173
+          Backend URL: http://${{ secrets.EC2_HOST }}:5000
+          Check it out! 
