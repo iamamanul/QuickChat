@@ -13,6 +13,7 @@ const ChatContainer = () => {
     const { authUser, onlineUsers } = useContext(AuthContext)
 
     const scrollEnd = useRef()
+    const inputRef = useRef();
 
     const [input, setInput] = useState('');
     const [uploading, setUploading] = useState(false);
@@ -73,6 +74,26 @@ const ChatContainer = () => {
         }
     },[messages])
 
+    // Scroll to bottom when input is focused (for mobile keyboard)
+    useEffect(() => {
+      const handleFocus = () => {
+        if (scrollEnd.current) {
+          scrollEnd.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
+        }
+      };
+      const input = inputRef.current;
+      if (input) {
+        input.addEventListener('focus', handleFocus);
+        input.addEventListener('touchstart', handleFocus);
+      }
+      return () => {
+        if (input) {
+          input.removeEventListener('focus', handleFocus);
+          input.removeEventListener('touchstart', handleFocus);
+        }
+      };
+    }, []);
+
   return selectedUser ? (
     <div className='h-full overflow-hidden relative backdrop-blur-lg'>
       {/* ------- header ------- */}
@@ -117,6 +138,7 @@ const ChatContainer = () => {
     <div className='absolute bottom-0 left-0 right-0 flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-[#18162a]/90' style={{backdropFilter: 'blur(6px)', zIndex: 10}}>
         <div className='flex-1 flex items-center bg-[#23213a] px-3 py-2 sm:px-3 sm:py-3 rounded-full border border-violet-500 gap-2'>
             <input 
+                ref={inputRef}
                 onChange={(e)=> setInput(e.target.value)} 
                 value={input} 
                 onKeyDown={(e)=> e.key === "Enter" ? handleSendMessage(e) : null} 
