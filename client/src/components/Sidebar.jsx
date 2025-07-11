@@ -13,6 +13,7 @@ const Sidebar = () => {
 
     const [input, setInput] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
+    const [loadingChat, setLoadingChat] = useState(false);
 
     const navigate = useNavigate();
 
@@ -36,8 +37,18 @@ const Sidebar = () => {
         };
     }, [showMenu]);
 
+    const handleUserClick = (user) => {
+        if (loadingChat) return;
+        setLoadingChat(true);
+        setTimeout(() => {
+            setSelectedUser(user);
+            setUnseenMessages(prev => ({ ...prev, [user._id]: 0 }));
+            setLoadingChat(false);
+        }, 200); // 200ms delay for smoothness
+    };
+
   return (
-    <div className={`bg-[#8185B2]/10 h-full p-3 sm:p-5 rounded-r-xl overflow-y-scroll text-white ${selectedUser ? "max-md:hidden" : ''}`}>
+    <div className={`bg-[#8185B2]/10 h-full p-3 sm:p-5 rounded-r-xl overflow-auto will-change-transform text-white ${selectedUser ? "max-md:hidden" : ''}`}>
       <div className='pb-5'>
         <div className='flex justify-between items-center'>
             <img src={assets.logo} alt="logo" className='max-w-32 sm:max-w-40' />
@@ -86,33 +97,39 @@ const Sidebar = () => {
 
       </div>
 
-    <div className='flex flex-col'>
-        {filteredUsers.map((user, index)=>(
-            <div 
-                onClick={()=> {
-                    setSelectedUser(user); 
-                    setUnseenMessages(prev=> ({...prev, [user._id]:0}))
-                }}
-                key={index} 
-                className={`relative flex items-center gap-2 p-2 pl-3 sm:pl-4 rounded cursor-pointer text-sm sm:text-base hover:bg-[#282142]/30 transition-colors ${selectedUser?._id === user._id && 'bg-[#282142]/50'}`}
-            >
-                <img src={user?.profilePic || assets.avatar_icon} alt="" className='w-[30px] sm:w-[35px] aspect-[1/1] rounded-full'/>
-                <div className='flex flex-col leading-4 sm:leading-5 min-w-0 flex-1'>
-                    <p className='truncate'>{user.fullName}</p>
-                    {
-                        onlineUsers.includes(user._id)
-                        ? <span className='text-green-400 text-xs'>Online</span>
-                        : <span className='text-neutral-400 text-xs'>Offline</span>
-                    }
+    {loadingChat ? (
+        <div className="flex flex-1 items-center justify-center h-full">
+            <svg className="animate-spin h-10 w-10 text-violet-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+        </div>
+    ) : (
+        <div className='flex flex-col'>
+            {filteredUsers.map((user, index) => (
+                <div
+                    onClick={() => handleUserClick(user)}
+                    key={index}
+                    className={`relative flex items-center gap-2 p-2 pl-3 sm:pl-4 rounded cursor-pointer text-sm sm:text-base hover:bg-[#282142]/30 transition-colors ${selectedUser?._id === user._id && 'bg-[#282142]/50'}`}
+                    style={{ pointerEvents: loadingChat ? 'none' : 'auto', opacity: loadingChat ? 0.6 : 1 }}
+                >
+                    <img src={user?.profilePic || assets.avatar_icon} alt="" className='w-[30px] sm:w-[35px] aspect-[1/1] rounded-full' />
+                    <div className='flex flex-col leading-4 sm:leading-5 min-w-0 flex-1'>
+                        <p className='truncate'>{user.fullName}</p>
+                        {onlineUsers.includes(user._id)
+                            ? <span className='text-green-400 text-xs'>Online</span>
+                            : <span className='text-neutral-400 text-xs'>Offline</span>
+                        }
+                    </div>
+                    {unseenMessages[user._id] > 0 && (
+                        <p className='absolute top-2 right-2 text-xs h-5 w-5 flex justify-center items-center rounded-full bg-violet-500/50'>
+                            {unseenMessages[user._id]}
+                        </p>
+                    )}
                 </div>
-                {unseenMessages[user._id] > 0 && (
-                    <p className='absolute top-2 right-2 text-xs h-5 w-5 flex justify-center items-center rounded-full bg-violet-500/50'>
-                        {unseenMessages[user._id]}
-                    </p>
-                )}
-            </div>
-        ))}
-    </div>
+            ))}
+        </div>
+    )}
 
     </div>
   )

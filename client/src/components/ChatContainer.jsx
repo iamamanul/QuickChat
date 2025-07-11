@@ -17,6 +17,7 @@ const ChatContainer = () => {
     const [input, setInput] = useState('');
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState("");
+    const [loadingChat, setLoadingChat] = useState(false);
 
     // Handle sending a message
     const handleSendMessage = async (e)=>{
@@ -54,11 +55,17 @@ const ChatContainer = () => {
         reader.readAsDataURL(file);
     }
 
-    useEffect(()=>{
-        if(selectedUser){
-            getMessages(selectedUser._id)
-        }
-    },[selectedUser])
+    // When selectedUser changes, show a loader for a short time to smooth out perceived lag
+    useEffect(() => {
+      if (selectedUser) {
+        setLoadingChat(true);
+        // Simulate a short loading delay for smoother UI
+        const timeout = setTimeout(() => {
+          getMessages(selectedUser._id).finally(() => setLoadingChat(false));
+        }, 200); // 200ms delay
+        return () => clearTimeout(timeout);
+      }
+    }, [selectedUser]);
 
     useEffect(()=>{
         if(scrollEnd.current && messages){
@@ -67,7 +74,7 @@ const ChatContainer = () => {
     },[messages])
 
   return selectedUser ? (
-    <div className='h-full overflow-scroll relative backdrop-blur-lg'>
+    <div className='h-full overflow-hidden relative backdrop-blur-lg'>
       {/* ------- header ------- */}
       <div className='flex items-center gap-2 sm:gap-3 py-2 sm:py-3 mx-2 sm:mx-4 border-b border-stone-500'>
         <img src={selectedUser.profilePic || assets.avatar_icon} alt="" className="w-6 sm:w-8 rounded-full"/>
@@ -78,25 +85,36 @@ const ChatContainer = () => {
         <img onClick={()=> setSelectedUser(null)} src={assets.arrow_icon} alt="" className='md:hidden max-w-6 sm:max-w-7 cursor-pointer'/>
       </div>
       {/* ------- chat area ------- */}
-      <div className='flex flex-col h-[calc(100%-120px)] overflow-y-scroll p-2 sm:p-3 pb-6'>
-        {messages.map((msg, index)=>(
-            <div key={index} className={`flex items-end gap-1 sm:gap-2 justify-end ${msg.senderId !== authUser._id && 'flex-row-reverse'}`}>
+      <div className='flex flex-col h-[calc(100%-120px)] overflow-auto p-2 sm:p-3 pb-[90px] sm:pb-[100px] will-change-transform scroll-smooth' style={{ WebkitOverflowScrolling: 'touch' }}>
+        {loadingChat ? (
+          <div className="flex flex-1 items-center justify-center h-full">
+            <svg className="animate-spin h-10 w-10 text-violet-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+            </svg>
+          </div>
+        ) : (
+          <>
+            {messages.map((msg, index) => (
+              <div key={index} className={`flex items-end gap-1 sm:gap-2 justify-end ${msg.senderId !== authUser._id && 'flex-row-reverse'}`}>
                 {msg.image ? (
-                    <img src={msg.image} alt="" className='max-w-[200px] sm:max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-6 sm:mb-8'/>
-                ):(
-                    <p className={`p-2 sm:p-3 max-w-[180px] sm:max-w-[200px] text-sm sm:text-base font-light rounded-lg mb-6 sm:mb-8 break-all bg-violet-500/30 text-white ${msg.senderId === authUser._id ? 'rounded-br-none' : 'rounded-bl-none'}`}>{msg.text}</p>
+                  <img src={msg.image} alt="" className='max-w-[200px] sm:max-w-[230px] border border-gray-700 rounded-lg overflow-hidden mb-6 sm:mb-8'/>
+                ) : (
+                  <p className={`p-2 sm:p-3 max-w-[180px] sm:max-w-[200px] text-sm sm:text-base font-light rounded-lg mb-6 sm:mb-8 break-all bg-violet-500/30 text-white ${msg.senderId === authUser._id ? 'rounded-br-none' : 'rounded-bl-none'}`}>{msg.text}</p>
                 )}
                 <div className="text-center text-xs">
-                    <img src={msg.senderId === authUser._id ? authUser?.profilePic || assets.avatar_icon : selectedUser?.profilePic || assets.avatar_icon} alt="" className='w-6 sm:w-7 rounded-full' />
-                    <p className='text-gray-500 text-xs'>{formatMessageTime(msg.createdAt)}</p>
+                  <img src={msg.senderId === authUser._id ? authUser?.profilePic || assets.avatar_icon : selectedUser?.profilePic || assets.avatar_icon} alt="" className='w-6 sm:w-7 rounded-full' />
+                  <p className='text-gray-500 text-xs'>{formatMessageTime(msg.createdAt)}</p>
                 </div>
-            </div>
-        ))}
-        <div ref={scrollEnd}></div>
+              </div>
+            ))}
+            <div ref={scrollEnd}></div>
+          </>
+        )}
       </div>
 
 {/* ------- bottom area ------- */}
-    <div className='absolute bottom-0 left-0 right-0 flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-[#18162a]/90' style={{backdropFilter: 'blur(6px)'}}>
+    <div className='absolute bottom-0 left-0 right-0 flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-[#18162a]/90' style={{backdropFilter: 'blur(6px)', zIndex: 10}}>
         <div className='flex-1 flex items-center bg-[#23213a] px-3 py-2 sm:px-3 sm:py-3 rounded-full border border-violet-500 gap-2'>
             <input 
                 onChange={(e)=> setInput(e.target.value)} 
