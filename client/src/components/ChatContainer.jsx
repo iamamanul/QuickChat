@@ -15,6 +15,8 @@ const ChatContainer = () => {
     const scrollEnd = useRef()
 
     const [input, setInput] = useState('');
+    const [uploading, setUploading] = useState(false);
+    const [uploadError, setUploadError] = useState("");
 
     // Handle sending a message
     const handleSendMessage = async (e)=>{
@@ -27,17 +29,29 @@ const ChatContainer = () => {
     // Handle sending an image
     const handleSendImage = async (e) =>{
         const file = e.target.files[0];
+        setUploadError("");
         if(!file || !file.type.startsWith("image/")){
-            toast.error("select an image file")
+            toast.error("Select an image file");
             return;
         }
-        const reader = new FileReader();
-
-        reader.onloadend = async ()=>{
-            await sendMessage({image: reader.result})
-            e.target.value = ""
+        if(file.size > 5 * 1024 * 1024) { // 5MB limit
+            setUploadError("Image too large! Please select an image under 5MB.");
+            toast.error("Image too large! Please select an image under 5MB.");
+            return;
         }
-        reader.readAsDataURL(file)
+        setUploading(true);
+        const reader = new FileReader();
+        reader.onloadend = async ()=>{
+            try {
+                await sendMessage({image: reader.result});
+            } catch (err) {
+                setUploadError("Failed to upload image. Please try again.");
+                toast.error("Failed to upload image. Please try again.");
+            }
+            setUploading(false);
+            e.target.value = "";
+        }
+        reader.readAsDataURL(file);
     }
 
     useEffect(()=>{
@@ -93,9 +107,21 @@ const ChatContainer = () => {
                 className='flex-1 text-sm p-2 sm:p-3 border-none rounded-lg outline-none text-white placeholder-gray-400 bg-transparent min-w-0'
                 style={{minWidth:0}}
             />
+            {uploadError && (
+              <div className="rounded-md p-2 mb-2 text-center font-semibold bg-gradient-to-r from-pink-400 via-yellow-300 to-green-400 text-gray-900 animate-pulse shadow-lg">
+                {uploadError}
+              </div>
+            )}
             <input onChange={handleSendImage} type="file" id='image' accept='image/png, image/jpeg' hidden/>
             <label htmlFor="image" className="flex items-center justify-center cursor-pointer">
+              {uploading ? (
+                <svg className="animate-spin h-6 w-6 text-violet-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                  <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                  <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+                </svg>
+              ) : (
                 <img src={assets.gallery_icon} alt="" className="w-6 h-6 sm:w-5 sm:h-5 mr-1 sm:mr-2"/>
+              )}
             </label>
         </div>
         <button onClick={handleSendMessage} className="flex items-center justify-center w-10 h-10 sm:w-10 sm:h-10 rounded-full bg-gradient-to-br from-purple-500 to-violet-700 shadow-md ml-2 border-none p-0">
