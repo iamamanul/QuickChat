@@ -36,6 +36,139 @@ html, body {
   }
 }
 
+/* Tablet-specific optimizations */
+@media (min-width: 768px) and (max-width: 1365px) {
+  html, body {
+    height: 100vh;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+  
+  /* Better touch targets for tablet */
+  button, 
+  [role="button"], 
+  input[type="button"], 
+  input[type="submit"] {
+    min-height: 48px;
+    min-width: 48px;
+  }
+  
+  /* Prevent zoom on input focus for tablet */
+  input[type="text"],
+  input[type="email"],
+  input[type="password"],
+  textarea {
+    font-size: 16px;
+  }
+  
+  /* Smooth scrolling for tablet */
+  * {
+    -webkit-overflow-scrolling: touch;
+  }
+  
+  /* Optimize font sizes for tablet */
+  .text-sm {
+    font-size: 14px !important;
+  }
+  
+  .text-base {
+    font-size: 16px !important;
+  }
+  
+  .text-lg {
+    font-size: 18px !important;
+  }
+  
+  .text-xl {
+    font-size: 20px !important;
+  }
+  
+  /* Better touch feedback for tablet */
+  button, [role="button"], .cursor-pointer {
+    -webkit-tap-highlight-color: rgba(139, 92, 246, 0.3);
+    transition: all 0.2s ease;
+  }
+  
+  button:active, [role="button"]:active, .cursor-pointer:active {
+    transform: scale(0.98);
+  }
+}
+
+/* Tablet Portrait (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  html, body {
+    height: 100vh;
+    min-height: 100vh;
+  }
+  
+  /* Optimize spacing for tablet portrait */
+  .p-2 { padding: 0.75rem !important; }
+  .p-3 { padding: 1rem !important; }
+  .p-4 { padding: 1.25rem !important; }
+  .p-5 { padding: 1.5rem !important; }
+  
+  .gap-2 { gap: 0.75rem !important; }
+  .gap-3 { gap: 1rem !important; }
+  .gap-4 { gap: 1.25rem !important; }
+  
+  /* Optimize text sizes for tablet portrait */
+  .text-xs { font-size: 13px !important; }
+  .text-sm { font-size: 15px !important; }
+  .text-base { font-size: 17px !important; }
+  .text-lg { font-size: 19px !important; }
+  .text-xl { font-size: 21px !important; }
+}
+
+/* Tablet Landscape (1024px to 1365px) */
+@media (min-width: 1024px) and (max-width: 1365px) and (orientation: landscape) {
+  html, body {
+    height: 100vh;
+    min-height: 100vh;
+  }
+  
+  /* Optimize spacing for tablet landscape */
+  .p-2 { padding: 0.5rem !important; }
+  .p-3 { padding: 0.75rem !important; }
+  .p-4 { padding: 1rem !important; }
+  .p-5 { padding: 1.25rem !important; }
+  
+  .gap-2 { gap: 0.5rem !important; }
+  .gap-3 { gap: 0.75rem !important; }
+  .gap-4 { gap: 1rem !important; }
+  
+  /* Optimize text sizes for tablet landscape */
+  .text-xs { font-size: 12px !important; }
+  .text-sm { font-size: 14px !important; }
+  .text-base { font-size: 16px !important; }
+  .text-lg { font-size: 18px !important; }
+  .text-xl { font-size: 20px !important; }
+}
+
+/* Large Tablet Portrait (1024px to 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) and (orientation: portrait) {
+  html, body {
+    height: 100vh;
+    min-height: 100vh;
+  }
+  
+  /* Optimize spacing for large tablet portrait */
+  .p-2 { padding: 0.875rem !important; }
+  .p-3 { padding: 1.125rem !important; }
+  .p-4 { padding: 1.375rem !important; }
+  .p-5 { padding: 1.625rem !important; }
+  
+  .gap-2 { gap: 0.875rem !important; }
+  .gap-3 { gap: 1.125rem !important; }
+  .gap-4 { gap: 1.375rem !important; }
+  
+  /* Optimize text sizes for large tablet portrait */
+  .text-xs { font-size: 14px !important; }
+  .text-sm { font-size: 16px !important; }
+  .text-base { font-size: 18px !important; }
+  .text-lg { font-size: 20px !important; }
+  .text-xl { font-size: 22px !important; }
+}
+
 /* Mobile-specific optimizations */
 @media (max-width: 639px) {
   /* Ensure proper viewport height on mobile */

@@ -34,6 +34,93 @@
   }
 }
 
+/* Tablet Portrait (768px to 1023px) */
+@media (min-width: 768px) and (max-width: 1023px) and (orientation: portrait) {
+  .main-chat-container {
+    padding: 3% 5% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+  }
+  
+  .main-chat-grid {
+    grid-template-columns: 1fr 1.8fr !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 1rem !important;
+  }
+  
+  /* Optimize sidebar for tablet portrait */
+  .main-chat-grid > div:first-child {
+    min-width: 280px !important;
+    max-width: 320px !important;
+  }
+  
+  /* Optimize chat area for tablet portrait */
+  .main-chat-grid > div:nth-child(2) {
+    min-width: 400px !important;
+  }
+}
+
+/* Tablet Landscape (1024px to 1365px) */
+@media (min-width: 1024px) and (max-width: 1365px) and (orientation: landscape) {
+  .main-chat-container {
+    padding: 2% 4% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+  }
+  
+  .main-chat-grid {
+    grid-template-columns: 1fr 2fr 1fr !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 1rem !important;
+  }
+  
+  /* Optimize sidebar for tablet landscape */
+  .main-chat-grid > div:first-child {
+    min-width: 250px !important;
+    max-width: 280px !important;
+  }
+  
+  /* Optimize chat area for tablet landscape */
+  .main-chat-grid > div:nth-child(2) {
+    min-width: 450px !important;
+  }
+  
+  /* Optimize right sidebar for tablet landscape */
+  .main-chat-grid > div:last-child {
+    min-width: 200px !important;
+    max-width: 250px !important;
+  }
+}
+
+/* Large Tablet Portrait (1024px to 1199px) */
+@media (min-width: 1024px) and (max-width: 1199px) and (orientation: portrait) {
+  .main-chat-container {
+    padding: 2% 4% !important;
+    height: 100vh !important;
+    min-height: 100vh !important;
+  }
+  
+  .main-chat-grid {
+    grid-template-columns: 1fr 2fr !important;
+    height: 100% !important;
+    max-height: 100vh !important;
+    border-radius: 1rem !important;
+  }
+  
+  /* Optimize sidebar for large tablet portrait */
+  .main-chat-grid > div:first-child {
+    min-width: 300px !important;
+    max-width: 350px !important;
+  }
+  
+  /* Optimize chat area for large tablet portrait */
+  .main-chat-grid > div:nth-child(2) {
+    min-width: 500px !important;
+  }
+}
+
 /* Mobile screens (below 640px) */
 @media (max-width: 639px) {
   .main-chat-grid {
