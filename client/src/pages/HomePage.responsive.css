@@ -40,10 +40,21 @@
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
     height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
   }
   .main-chat-container {
     padding: 0 !important;
     height: 100vh !important;
+    height: 100dvh !important;
+    min-height: 100vh !important;
+    min-height: 100dvh !important;
+    position: fixed !important;
+    top: 0 !important;
+    left: 0 !important;
+    right: 0 !important;
+    bottom: 0 !important;
   }
 }
 
@@ -53,10 +64,12 @@
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
     height: 100vh !important;
+    height: 100dvh !important;
   }
   .main-chat-container {
     padding: 0 !important;
     height: 100vh !important;
+    height: 100dvh !important;
   }
 }
 
@@ -75,5 +88,12 @@
   .main-chat-container {
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+  }
+  
+  /* Ensure chat area takes full available space */
+  .main-chat-grid {
+    display: flex !important;
+    flex-direction: column !important;
+    height: 100% !important;
   }
 }

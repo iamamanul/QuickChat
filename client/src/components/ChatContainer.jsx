@@ -4,6 +4,8 @@ import { formatMessageTime } from '../lib/utils'
 import { ChatContext } from '../../context/ChatContext'
 import { AuthContext } from '../../context/AuthContext'
 import toast from 'react-hot-toast'
+import './ChatContainer.mobile.css'
+import { useMobileNavigation } from '../hooks/useMobileNavigation'
 
 const ChatContainer = () => {
 
@@ -19,6 +21,10 @@ const ChatContainer = () => {
     const [uploading, setUploading] = useState(false);
     const [uploadError, setUploadError] = useState("");
     const [loadingChat, setLoadingChat] = useState(false);
+    const [isKeyboardOpen, setIsKeyboardOpen] = useState(false);
+
+    // Mobile navigation hook
+    const { navigateToUsers, isMobile } = useMobileNavigation(selectedUser, setSelectedUser);
 
     // Handle sending a message
     const handleSendMessage = async (e)=>{
@@ -74,6 +80,60 @@ const ChatContainer = () => {
         }
     },[messages])
 
+    // Mobile keyboard detection and handling
+    useEffect(() => {
+      const handleResize = () => {
+        const isMobile = window.innerWidth <= 639;
+        if (isMobile) {
+          const viewportHeight = window.innerHeight;
+          const windowHeight = window.outerHeight;
+          const keyboardHeight = windowHeight - viewportHeight;
+          
+          if (keyboardHeight > 150) {
+            setIsKeyboardOpen(true);
+            document.body.classList.add('keyboard-open');
+          } else {
+            setIsKeyboardOpen(false);
+            document.body.classList.remove('keyboard-open');
+          }
+        }
+      };
+
+      const handleFocus = () => {
+        if (window.innerWidth <= 639) {
+          setIsKeyboardOpen(true);
+          document.body.classList.add('keyboard-open');
+        }
+      };
+
+      const handleBlur = () => {
+        if (window.innerWidth <= 639) {
+          // Small delay to allow for keyboard animation
+          setTimeout(() => {
+            setIsKeyboardOpen(false);
+            document.body.classList.remove('keyboard-open');
+          }, 300);
+        }
+      };
+
+      const input = inputRef.current;
+      if (input) {
+        input.addEventListener('focus', handleFocus);
+        input.addEventListener('blur', handleBlur);
+      }
+
+      window.addEventListener('resize', handleResize);
+      
+      return () => {
+        if (input) {
+          input.removeEventListener('focus', handleFocus);
+          input.removeEventListener('blur', handleBlur);
+        }
+        window.removeEventListener('resize', handleResize);
+        document.body.classList.remove('keyboard-open');
+      };
+    }, []);
+
     // Scroll to bottom when input is focused (for mobile keyboard)
     useEffect(() => {
       const handleFocus = () => {
@@ -94,19 +154,28 @@ const ChatContainer = () => {
       };
     }, []);
 
+    // Handle back button click in header
+    const handleBackClick = () => {
+      if (isMobile) {
+        navigateToUsers();
+      } else {
+        setSelectedUser(null);
+      }
+    };
+
   return selectedUser ? (
-    <div className='h-full overflow-hidden relative backdrop-blur-lg'>
+    <div className={`h-full overflow-hidden relative backdrop-blur-lg flex flex-col mobile-chat-container ${isKeyboardOpen ? 'keyboard-open' : ''}`}>
       {/* ------- header ------- */}
-      <div className='flex items-center gap-2 sm:gap-3 py-2 sm:py-3 mx-2 sm:mx-4 border-b border-stone-500'>
+      <div className='flex items-center gap-2 sm:gap-3 py-2 sm:py-3 mx-2 sm:mx-4 border-b border-stone-500 flex-shrink-0 mobile-chat-header'>
         <img src={selectedUser.profilePic || assets.avatar_icon} alt="" className="w-6 sm:w-8 rounded-full"/>
         <p className='flex-1 text-base sm:text-lg text-white flex items-center gap-2'>
             {selectedUser.fullName}
             {onlineUsers.includes(selectedUser._id) && <span className="w-2 h-2 rounded-full bg-green-500"></span>}
         </p>
-        <img onClick={()=> setSelectedUser(null)} src={assets.arrow_icon} alt="" className='md:hidden max-w-6 sm:max-w-7 cursor-pointer'/>
+        <img onClick={handleBackClick} src={assets.arrow_icon} alt="" className='md:hidden max-w-6 sm:max-w-7 cursor-pointer back-button'/>
       </div>
       {/* ------- chat area ------- */}
-      <div className='flex flex-col h-[calc(100%-120px)] overflow-auto p-2 sm:p-3 pb-[90px] sm:pb-[100px] will-change-transform scroll-smooth' style={{ WebkitOverflowScrolling: 'touch' }}>
+      <div className='flex flex-col flex-1 overflow-auto p-2 sm:p-3 will-change-transform scroll-smooth mobile-chat-area' style={{ WebkitOverflowScrolling: 'touch' }}>
         {loadingChat ? (
           <div className="flex flex-1 items-center justify-center h-full">
             <svg className="animate-spin h-10 w-10 text-violet-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
@@ -135,7 +204,7 @@ const ChatContainer = () => {
       </div>
 
 {/* ------- bottom area ------- */}
-    <div className='absolute bottom-0 left-0 right-0 flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-[#18162a]/90' style={{backdropFilter: 'blur(6px)', zIndex: 10}}>
+    <div className='flex items-center gap-2 sm:gap-3 p-2 sm:p-3 bg-[#18162a]/90 flex-shrink-0 mobile-chat-input' style={{backdropFilter: 'blur(6px)', zIndex: 10}}>
         <div className='flex-1 flex items-center bg-[#23213a] px-3 py-2 sm:px-3 sm:py-3 rounded-full border border-violet-500 gap-2'>
             <input 
                 ref={inputRef}
@@ -168,7 +237,6 @@ const ChatContainer = () => {
             <img src={assets.send_button} alt="Send" className="w-6 sm:w-7" />
         </button>
     </div>
-
 
     </div>
   ) : (

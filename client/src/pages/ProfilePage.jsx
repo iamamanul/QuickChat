@@ -1,7 +1,8 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useState, useEffect } from 'react'
 import { useNavigate } from 'react-router-dom'
 import assets from '../assets/assets';
 import { AuthContext } from '../../context/AuthContext';
+import { useMobileNavigation } from '../hooks/useMobileNavigation';
 
 const ProfilePage = () => {
 
@@ -12,11 +13,18 @@ const ProfilePage = () => {
   const [name, setName] = useState(authUser.fullName)
   const [bio, setBio] = useState(authUser.bio)
 
+  // Mobile navigation hook
+  const { isMobile } = useMobileNavigation(null, null);
+
   const handleSubmit = async (e)=>{
     e.preventDefault();
     if(!selectedImg){
       await updateProfile({fullName: name, bio});
-      navigate('/');
+      if (isMobile) {
+        navigate('/');
+      } else {
+        navigate('/');
+      }
       return;
     }
 
@@ -25,10 +33,30 @@ const ProfilePage = () => {
     reader.onload = async ()=>{
       const base64Image = reader.result;
       await updateProfile({profilePic: base64Image, fullName: name, bio});
-      navigate('/');
+      if (isMobile) {
+        navigate('/');
+      } else {
+        navigate('/');
+      }
     }
     
   }
+
+  // Handle back button for mobile
+  useEffect(() => {
+    if (isMobile) {
+      const handlePopState = (event) => {
+        // If user tries to go back from profile, navigate to home
+        event.preventDefault();
+        navigate('/');
+      };
+
+      window.addEventListener('popstate', handlePopState);
+      return () => {
+        window.removeEventListener('popstate', handlePopState);
+      };
+    }
+  }, [isMobile, navigate]);
 
   return (
     <div className='min-h-screen bg-cover bg-no-repeat flex items-center justify-center p-4 sm:p-8'>
@@ -64,13 +92,13 @@ const ProfilePage = () => {
             Save
           </button>
         </form>
-        <img 
-          className={`max-w-20 sm:max-w-44 aspect-square rounded-full mx-4 sm:mx-10 max-sm:mt-6 ${selectedImg && 'rounded-full'}`} 
-          src={authUser?.profilePic || assets.logo_icon} 
-          alt="" 
-        />
+
+        <div className='flex flex-col items-center gap-4 p-6 sm:p-10'>
+          <img src={authUser.profilePic || assets.avatar_icon} alt="" className='w-32 h-32 rounded-full border-4 border-[#282142] shadow-lg' />
+          <h1 className='text-2xl font-semibold text-center'>{authUser.fullName}</h1>
+          <p className='text-center text-sm text-gray-300'>{authUser.bio}</p>
+        </div>
       </div>
-     
     </div>
   )
 }

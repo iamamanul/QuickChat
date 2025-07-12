@@ -3,6 +3,7 @@ import assets from '../assets/assets'
 import { useNavigate } from 'react-router-dom';
 import { AuthContext } from '../../context/AuthContext';
 import { ChatContext } from '../../context/ChatContext';
+import { useMobileNavigation } from '../hooks/useMobileNavigation';
 
 const Sidebar = () => {
 
@@ -16,6 +17,9 @@ const Sidebar = () => {
     const [loadingChat, setLoadingChat] = useState(false);
 
     const navigate = useNavigate();
+    
+    // Mobile navigation hook
+    const { navigateToChat, navigateToProfile, isMobile } = useMobileNavigation(selectedUser, setSelectedUser);
 
     const filteredUsers = input ? users.filter((user)=>user.fullName.toLowerCase().includes(input.toLowerCase())) : users;
 
@@ -41,10 +45,28 @@ const Sidebar = () => {
         if (loadingChat) return;
         setLoadingChat(true);
         setTimeout(() => {
-            setSelectedUser(user);
+            if (isMobile) {
+                navigateToChat(user);
+            } else {
+                setSelectedUser(user);
+            }
             setUnseenMessages(prev => ({ ...prev, [user._id]: 0 }));
             setLoadingChat(false);
         }, 200); // 200ms delay for smoothness
+    };
+
+    const handleProfileClick = () => {
+        setShowMenu(false);
+        if (isMobile) {
+            navigateToProfile();
+        } else {
+            navigate('/profile');
+        }
+    };
+
+    const handleLogoutClick = () => {
+        setShowMenu(false);
+        logout();
     };
 
   return (
@@ -62,20 +84,14 @@ const Sidebar = () => {
                 {showMenu && (
                     <div className='absolute top-full right-0 z-20 w-32 p-3 rounded-md bg-[#282142] border border-gray-600 text-gray-100 shadow-lg'>
                         <p 
-                            onClick={() => {
-                                navigate('/profile');
-                                setShowMenu(false);
-                            }} 
+                            onClick={handleProfileClick} 
                             className='cursor-pointer text-sm hover:text-white transition-colors'
                         >
                             Edit Profile
                         </p>
                         <hr className="my-2 border-t border-gray-500" />
                         <p 
-                            onClick={() => {
-                                logout();
-                                setShowMenu(false);
-                            }} 
+                            onClick={handleLogoutClick} 
                             className='cursor-pointer text-sm hover:text-white transition-colors'
                         >
                             Logout
@@ -100,8 +116,8 @@ const Sidebar = () => {
     {loadingChat ? (
         <div className="flex flex-1 items-center justify-center h-full">
             <svg className="animate-spin h-10 w-10 text-violet-400" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
+              <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+              <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v4a4 4 0 00-4 4H4z"></path>
             </svg>
         </div>
     ) : (
