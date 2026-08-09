@@ -2,6 +2,7 @@ import { generateToken } from "../lib/utils.js";
 import User from "../models/User.js";
 import bcrypt from "bcryptjs";
 import cloudinary from "../lib/cloudinary.js"
+import { io, userSocketMap } from "../server.js";
 
 // Signup a new user
 export const signup = async (req, res)=>{
@@ -130,6 +131,11 @@ export const sendFriendRequest = async (req, res) => {
         targetUser.friendRequests.push(currentUserId);
         await targetUser.save();
 
+        const targetSocketId = userSocketMap[targetUserId];
+        if (targetSocketId) {
+            io.to(targetSocketId).emit("newFriendRequest", currentUserId);
+        }
+
         res.json({ success: true, message: "Friend request sent" });
     } catch (error) {
         console.log(error.message);
@@ -173,6 +179,11 @@ export const acceptFriendRequest = async (req, res) => {
         await currentUser.save();
         await targetUser.save();
 
+        const targetSocketId = userSocketMap[targetUserId];
+        if (targetSocketId) {
+            io.to(targetSocketId).emit("friendRequestAccepted", currentUserId);
+        }
+
         res.json({ success: true, message: "Friend request accepted" });
     } catch (error) {
         console.log(error.message);
@@ -215,6 +226,11 @@ export const unfriendUser = async (req, res) => {
         }
         
         await currentUser.save();
+
+        const targetSocketId = userSocketMap[targetUserId];
+        if (targetSocketId) {
+            io.to(targetSocketId).emit("unfriended", currentUserId);
+        }
 
         res.json({ success: true, message: "Unfriended successfully" });
     } catch (error) {

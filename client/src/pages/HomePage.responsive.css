@@ -121,8 +121,8 @@
   }
 }
 
-/* Mobile screens (below 640px) */
-@media (max-width: 639px) {
+/* Mobile screens (below 640px) OR mobile landscape (height below 500px) */
+@media (max-width: 639px), (max-height: 500px) and (orientation: landscape) {
   .main-chat-grid {
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
@@ -171,7 +171,7 @@
 }
 
 /* Ensure proper viewport height on mobile */
-@media (max-width: 639px) {
+@media (max-width: 639px), (max-height: 500px) and (orientation: landscape) {
   .main-chat-container {
     min-height: 100vh;
     min-height: 100dvh; /* Dynamic viewport height for mobile browsers */

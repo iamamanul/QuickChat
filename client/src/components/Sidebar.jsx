@@ -12,7 +12,7 @@ const Sidebar = () => {
     const {getUsers, users, selectedUser, setSelectedUser,
         unseenMessages, setUnseenMessages } = useContext(ChatContext);
 
-    const {logout, onlineUsers} = useContext(AuthContext)
+    const {logout, onlineUsers, socket} = useContext(AuthContext)
 
     const [input, setInput] = useState(false)
     const [showMenu, setShowMenu] = useState(false)
@@ -99,6 +99,39 @@ const Sidebar = () => {
     useEffect(()=>{
         getUsers();
     },[onlineUsers])
+
+    // Listen for real-time friend system events
+    useEffect(() => {
+        if (!socket) return;
+
+        socket.on("newFriendRequest", (senderId) => {
+            toast.success("New friend request received!");
+            if (activeTab === 'requests') {
+                fetchFriendRequests();
+            } else {
+                // optionally fetch anyway to update badge
+                fetchFriendRequests();
+            }
+        });
+
+        socket.on("friendRequestAccepted", (userId) => {
+            toast.success("Someone accepted your friend request!");
+            getUsers();
+        });
+
+        socket.on("unfriended", (userId) => {
+            getUsers();
+            if (selectedUser?._id === userId) {
+                setSelectedUser(null);
+            }
+        });
+
+        return () => {
+            socket.off("newFriendRequest");
+            socket.off("friendRequestAccepted");
+            socket.off("unfriended");
+        };
+    }, [socket, activeTab, selectedUser]);
 
     // Close menu when clicking outside
     useEffect(() => {
@@ -246,7 +279,7 @@ const Sidebar = () => {
                         placeholder="Enter exactly username or email..."
                         className='bg-[#282142] p-2 rounded-md outline-none text-sm w-full text-white placeholder-gray-400'
                     />
-                    <button type="submit" className='bg-violet-600 hover:bg-violet-500 text-white p-2 rounded-md text-sm font-medium'>Search</button>
+                    <button type="submit" className='bg-violet-600 hover:bg-violet-500 text-white p-2 rounded-md text-sm font-medium shrink-0 whitespace-nowrap'>Search</button>
                 </form>
                 {searchResult && (
                     <div className='flex items-center justify-between p-3 bg-[#282142]/50 rounded-lg'>

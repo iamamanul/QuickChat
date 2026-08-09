@@ -5,7 +5,7 @@ import { AuthContext } from '../../context/AuthContext'
 import axios from 'axios'
 import toast from 'react-hot-toast'
 
-const RightSidebar = () => {
+const RightSidebar = ({ onClose }) => {
 
     const {selectedUser, messages, setSelectedUser, getUsers} = useContext(ChatContext)
     const {logout, onlineUsers} = useContext(AuthContext)
@@ -27,6 +27,7 @@ const RightSidebar = () => {
                 setShowConfirm(false);
                 setSelectedUser(null);
                 getUsers(); // Refresh the friend list
+                if (onClose) onClose();
             } else {
                 toast.error(data.message);
             }
@@ -38,6 +39,11 @@ const RightSidebar = () => {
 
   return (
     <div className='bg-gradient-to-b from-[#23213a] to-[#18162a] text-white w-full relative overflow-y-scroll animate-in slide-in-from-right duration-300 ease-out flex flex-col h-full'>
+        {onClose && (
+            <button onClick={onClose} className="lg:hidden absolute top-4 left-4 w-8 h-8 flex items-center justify-center bg-[#282142] rounded-full hover:bg-white/10 transition-colors z-10">
+                <img src={assets.arrow_icon} alt="Back" className="w-4 h-4" />
+            </button>
+        )}
         <div className='flex flex-col items-center gap-2 text-xs font-light mx-auto px-4 pt-10 pb-4'>
             <img src={selectedUser?.profilePic || assets.avatar_icon} alt=""
             className='w-20 h-20 rounded-full border-4 border-[#282142] shadow-lg mb-2' />

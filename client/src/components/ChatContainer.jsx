@@ -7,7 +7,7 @@ import toast from 'react-hot-toast'
 import './ChatContainer.mobile.css'
 import { useMobileNavigation } from '../hooks/useMobileNavigation'
 
-const ChatContainer = () => {
+const ChatContainer = ({ onProfileClick }) => {
 
     const { messages, selectedUser, setSelectedUser, sendMessage, 
         getMessages} = useContext(ChatContext)
@@ -167,11 +167,13 @@ const ChatContainer = () => {
     <div className={`h-full overflow-hidden relative backdrop-blur-lg flex flex-col mobile-chat-container ${isKeyboardOpen ? 'keyboard-open' : ''}`}>
       {/* ------- header ------- */}
       <div className='flex items-center gap-2 sm:gap-3 py-2 sm:py-3 mx-2 sm:mx-4 border-b border-stone-500 flex-shrink-0 mobile-chat-header'>
-        <img src={selectedUser.profilePic || assets.avatar_icon} alt="" className="w-6 sm:w-8 rounded-full"/>
-        <p className='flex-1 text-base sm:text-lg text-white flex items-center gap-2'>
-            {selectedUser.fullName}
-            {onlineUsers.includes(selectedUser._id) && <span className="w-2 h-2 rounded-full bg-green-500"></span>}
-        </p>
+        <div onClick={onProfileClick} className="flex-1 flex items-center gap-2 cursor-pointer hover:bg-white/5 p-1 -ml-1 rounded-md transition-colors lg:cursor-default lg:hover:bg-transparent">
+            <img src={selectedUser.profilePic || assets.avatar_icon} alt="" className="w-6 sm:w-8 rounded-full"/>
+            <p className='text-base sm:text-lg text-white flex items-center gap-2'>
+                {selectedUser.fullName}
+                {onlineUsers.includes(selectedUser._id) && <span className="w-2 h-2 rounded-full bg-green-500"></span>}
+            </p>
+        </div>
         <img onClick={handleBackClick} src={assets.arrow_icon} alt="" className='md:hidden max-w-6 sm:max-w-7 cursor-pointer back-button'/>
       </div>
       {/* ------- chat area ------- */}
