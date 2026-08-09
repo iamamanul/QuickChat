@@ -134,25 +134,7 @@ const ChatContainer = ({ onProfileClick }) => {
       };
     }, []);
 
-    // Scroll to bottom when input is focused (for mobile keyboard)
-    useEffect(() => {
-      const handleFocus = () => {
-        if (scrollEnd.current) {
-          scrollEnd.current.scrollIntoView({ behavior: 'smooth', block: 'end' });
-        }
-      };
-      const input = inputRef.current;
-      if (input) {
-        input.addEventListener('focus', handleFocus);
-        input.addEventListener('touchstart', handleFocus);
-      }
-      return () => {
-        if (input) {
-          input.removeEventListener('focus', handleFocus);
-          input.removeEventListener('touchstart', handleFocus);
-        }
-      };
-    }, []);
+    // Manual focus scroll handling removed to prevent keyboard over-scrolling issues
 
     // Handle back button click in header
     const handleBackClick = () => {
