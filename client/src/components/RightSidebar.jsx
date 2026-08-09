@@ -40,11 +40,13 @@ const RightSidebar = ({ onClose }) => {
   return (
     <div className='bg-gradient-to-b from-[#23213a] to-[#18162a] text-white w-full relative overflow-y-scroll animate-in slide-in-from-right duration-300 ease-out flex flex-col h-full'>
         {onClose && (
-            <button onClick={onClose} className="lg:hidden absolute top-4 left-4 w-8 h-8 flex items-center justify-center bg-[#282142] rounded-full hover:bg-white/10 transition-colors z-10">
-                <img src={assets.arrow_icon} alt="Back" className="w-4 h-4" />
+            <button onClick={onClose} className="lg:hidden absolute top-4 right-4 w-10 h-10 flex items-center justify-center bg-[#282142] rounded-full hover:bg-white/10 transition-colors z-10 shadow-lg border border-gray-600">
+                <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5 text-gray-300" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+                </svg>
             </button>
         )}
-        <div className='flex flex-col items-center gap-2 text-xs font-light mx-auto px-4 pt-10 pb-4'>
+        <div className='flex flex-col items-center gap-2 text-xs font-light mx-auto px-4 pt-12 pb-4'>
             <img src={selectedUser?.profilePic || assets.avatar_icon} alt=""
             className='w-20 h-20 rounded-full border-4 border-[#282142] shadow-lg mb-2' />
             <h1 className='text-xl font-semibold mx-auto flex items-center gap-2 text-center'>
