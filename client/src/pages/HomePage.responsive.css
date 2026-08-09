@@ -126,17 +126,11 @@
   .main-chat-grid {
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 100vh !important;
-    min-height: 100dvh !important;
+    height: 100% !important;
+    min-height: 100% !important;
   }
   .main-chat-container {
     padding: 0 !important;
-    height: 100vh !important;
-    height: 100dvh !important;
-    min-height: 100vh !important;
-    min-height: 100dvh !important;
     position: fixed !important;
     top: 0 !important;
     left: 0 !important;
@@ -150,13 +144,10 @@
   .main-chat-grid {
     grid-template-columns: 1fr !important;
     border-radius: 0 !important;
-    height: 100vh !important;
-    height: 100dvh !important;
+    height: 100% !important;
   }
   .main-chat-container {
     padding: 0 !important;
-    height: 100vh !important;
-    height: 100dvh !important;
   }
 }
 
@@ -173,8 +164,7 @@
 /* Ensure proper viewport height on mobile */
 @media (max-width: 639px), (max-height: 500px) and (orientation: landscape) {
   .main-chat-container {
-    min-height: 100vh;
-    min-height: 100dvh; /* Dynamic viewport height for mobile browsers */
+    /* Rely on fixed inset coordinates rather than viewport units */
   }
   
   /* Ensure chat area takes full available space */
