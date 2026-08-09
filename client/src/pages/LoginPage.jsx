@@ -7,6 +7,7 @@ const LoginPage = () => {
   // Default to Login
   const [currState, setCurrState] = useState("Login")
   const [fullName, setFullName] = useState("")
+  const [username, setUsername] = useState("")
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [bio, setBio] = useState("")
@@ -26,7 +27,7 @@ const LoginPage = () => {
     }
     setLoading(true);
     try {
-      await login(currState=== "Sign up" ? 'signup' : 'login', {fullName, email, password, bio});
+      await login(currState=== "Sign up" ? 'signup' : 'login', {fullName, username, email, password, bio});
       setLoading(false);
     } catch (error) {
       setLoading(false);
@@ -94,14 +95,24 @@ const LoginPage = () => {
         {currState === "Sign up" && (
           <>
             {!isDataSubmitted && (
-              <input 
-                onChange={(e)=>setFullName(e.target.value)} 
-                value={fullName}
-                type="text" 
-                className='p-3 sm:p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white bg-transparent' 
-                placeholder="Full Name" 
-                required
-              />
+              <>
+                <input 
+                  onChange={(e)=>setFullName(e.target.value)} 
+                  value={fullName}
+                  type="text" 
+                  className='p-3 sm:p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white bg-transparent' 
+                  placeholder="Full Name" 
+                  required
+                />
+                <input 
+                  onChange={(e)=>setUsername(e.target.value)} 
+                  value={username}
+                  type="text" 
+                  className='p-3 sm:p-2 border border-gray-500 rounded-md focus:outline-none focus:ring-2 focus:ring-indigo-500 text-white placeholder-white bg-transparent' 
+                  placeholder="Username" 
+                  required
+                />
+              </>
             )}
             {!isDataSubmitted && (
               <>

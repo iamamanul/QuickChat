@@ -38,6 +38,7 @@ const login = async (state, credentials)=>{
             setAuthUser(data.userData);
             connectSocket(data.userData);
             axios.defaults.headers.common["token"] = data.token;
+            axios.defaults.headers.common["Authorization"] = `Bearer ${data.token}`;
             setToken(data.token);
             localStorage.setItem("token", data.token)
             toast.success(data.message)
@@ -57,6 +58,7 @@ const login = async (state, credentials)=>{
         setAuthUser(null);
         setOnlineUsers([]);
         axios.defaults.headers.common["token"] = null;
+        axios.defaults.headers.common["Authorization"] = null;
         toast.success("Logged out successfully")
         socket.disconnect();
     }
@@ -94,6 +96,7 @@ const login = async (state, credentials)=>{
     useEffect(()=>{
         if(token){
             axios.defaults.headers.common["token"] = token;
+            axios.defaults.headers.common["Authorization"] = `Bearer ${token}`;
         }
         checkAuth();
     },[])

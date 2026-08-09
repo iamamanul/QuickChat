@@ -2,12 +2,15 @@ import React, { useContext, useEffect, useState } from 'react'
 import assets, { imagesDummyData } from '../assets/assets'
 import { ChatContext } from '../../context/ChatContext'
 import { AuthContext } from '../../context/AuthContext'
+import axios from 'axios'
+import toast from 'react-hot-toast'
 
 const RightSidebar = () => {
 
-    const {selectedUser, messages} = useContext(ChatContext)
+    const {selectedUser, messages, setSelectedUser, getUsers} = useContext(ChatContext)
     const {logout, onlineUsers} = useContext(AuthContext)
     const [msgImages, setMsgImages] = useState([])
+    const [showConfirm, setShowConfirm] = useState(false);
 
     // Get all the images from the messages and set them to state
     useEffect(()=>{
@@ -15,6 +18,23 @@ const RightSidebar = () => {
             messages.filter(msg => msg.image).map(msg=>msg.image)
         )
     },[messages])
+
+    const handleUnfriend = async () => {
+        try {
+            const { data } = await axios.post('/api/auth/unfriend', { targetUserId: selectedUser._id });
+            if (data.success) {
+                toast.success(data.message);
+                setShowConfirm(false);
+                setSelectedUser(null);
+                getUsers(); // Refresh the friend list
+            } else {
+                toast.error(data.message);
+            }
+        } catch (error) {
+            console.error(error);
+            toast.error("Failed to unfriend. Is the backend updated?");
+        }
+    };
 
   return (
     <div className='bg-gradient-to-b from-[#23213a] to-[#18162a] text-white w-full relative overflow-y-scroll animate-in slide-in-from-right duration-300 ease-out flex flex-col h-full'>
@@ -41,9 +61,30 @@ const RightSidebar = () => {
             </div>
         </div>
 
-        <button onClick={()=> logout()} className='mt-6 mb-4 mx-4 bg-gradient-to-r from-purple-400 to-violet-600 text-white border-none text-base font-medium py-3 rounded-full cursor-pointer hover:opacity-90 transition-opacity shadow-lg'>
-            Logout
-        </button>
+        <div className='flex gap-2 mx-4 mb-4 mt-6'>
+            {showConfirm ? (
+                <div className='flex flex-col flex-1 gap-2 p-3 bg-[#282142] rounded-xl border border-red-900/50 shadow-lg text-center'>
+                    <p className='text-sm text-gray-300'>Remove {selectedUser.fullName}?</p>
+                    <div className='flex gap-2'>
+                        <button onClick={handleUnfriend} className='flex-1 bg-red-600 hover:bg-red-500 text-white text-xs font-medium py-2 rounded-md transition-colors'>
+                            Yes
+                        </button>
+                        <button onClick={() => setShowConfirm(false)} className='flex-1 bg-gray-600 hover:bg-gray-500 text-white text-xs font-medium py-2 rounded-md transition-colors'>
+                            Cancel
+                        </button>
+                    </div>
+                </div>
+            ) : (
+                <button onClick={() => setShowConfirm(true)} className='flex-1 bg-[#282142] hover:bg-red-900/40 text-red-400 border border-red-900/50 text-sm font-medium py-3 rounded-full cursor-pointer transition-colors shadow-lg'>
+                    Unfriend
+                </button>
+            )}
+            {!showConfirm && (
+                <button onClick={()=> logout()} className='flex-1 bg-gradient-to-r from-purple-400 to-violet-600 text-white border-none text-sm font-medium py-3 rounded-full cursor-pointer hover:opacity-90 transition-opacity shadow-lg'>
+                    Logout
+                </button>
+            )}
+        </div>
     </div>
   )
 }
