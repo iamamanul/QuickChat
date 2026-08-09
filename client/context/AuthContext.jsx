@@ -89,6 +89,7 @@ const login = async (state, credentials)=>{
     // Connect socket function to handle socket connection and online users updates
     const connectSocket = (userData)=>{
         if(!userData || socket?.connected) return;
+        if(socket) socket.disconnect();
         const newSocket = io(backendUrl, {
             query: {
                 userId: userData._id,

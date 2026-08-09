@@ -53,32 +53,35 @@ export const ChatProvider = ({ children })=>{
         }
     }
 
+    const selectedUserRef = useRef(selectedUser);
+    useEffect(() => {
+        selectedUserRef.current = selectedUser;
+    }, [selectedUser]);
+
     // function to subscribe to messages for selected user
-    const subscribeToMessages = async () =>{
-        if(!socket) return;
+    useEffect(() => {
+        if (!socket) return;
 
-        socket.on("newMessage", (newMessage)=>{
-            if(selectedUser && newMessage.senderId == selectedUser._id){
+        const handleNewMessage = (newMessage) => {
+            const currentSelected = selectedUserRef.current;
+            if (currentSelected && String(newMessage.senderId) === String(currentSelected._id)) {
                 newMessage.seen = true;
-                setMessages((prevMessages)=> [...prevMessages, newMessage]);
+                setMessages((prevMessages) => [...prevMessages, newMessage]);
                 axios.put(`/api/messages/mark/${newMessage._id}`);
-            }else{
-                setUnseenMessages((prevUnseenMessages)=>({
-                    ...prevUnseenMessages, [newMessage.senderId] : prevUnseenMessages[newMessage.senderId] ? prevUnseenMessages[newMessage.senderId] + 1 : 1
-                }))
+            } else {
+                setUnseenMessages((prevUnseenMessages) => ({
+                    ...prevUnseenMessages,
+                    [newMessage.senderId]: (prevUnseenMessages[newMessage.senderId] || 0) + 1
+                }));
             }
-        })
-    }
+        };
 
-    // function to unsubscribe from messages
-    const unsubscribeFromMessages = ()=>{
-        if(socket) socket.off("newMessage");
-    }
+        socket.on("newMessage", handleNewMessage);
 
-    useEffect(()=>{
-        subscribeToMessages();
-        return ()=> unsubscribeFromMessages();
-    },[socket, selectedUser])
+        return () => {
+            socket.off("newMessage", handleNewMessage);
+        };
+    }, [socket]);
 
     const value = {
         messages, users, selectedUser, getUsers, getMessages, sendMessage, setSelectedUser, unseenMessages, setUnseenMessages
